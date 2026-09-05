@@ -1,6 +1,6 @@
 {
   "name": "@tugane/design-rn",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The shared design language behind tugane's apps, for React Native. Companion to the Swift TuganeDesign package.",
   "license": "GPL-3.0-or-later",
   "author": "Amiel Tugane Mutarataza",
@@ -12,11 +12,11 @@
     "url": "https://github.com/tugane/TuganeDesignRN/issues"
   },
   "homepage": "https://github.com/tugane/TuganeDesignRN#readme",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "react-native": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
+    "dist",
     "src",
     "README.md",
     "LICENSE",
@@ -26,8 +26,10 @@
     "access": "public"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18",

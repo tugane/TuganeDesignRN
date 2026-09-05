@@ -1,8 +1,8 @@
 # TuganeDesign for React Native
 
 The React Native half of [TuganeDesign](https://github.com/tugane/TuganeDesign) —
-the shared design language behind [Auger](https://auger.tugane.com),
-[Vaultkit](https://github.com/tugane/Vaultkit) and Namba. One palette, one set of
+the shared design language behind [Auger](https://auger.tugane.com) and
+[Vaultkit](https://github.com/tugane/Vaultkit). One palette, one set of
 components, so every app looks and behaves like a sibling rather than a cousin,
 whether it was written in Swift or TypeScript.
 
@@ -24,10 +24,12 @@ The Swift package stays the source of truth. This one tracks it.
 
 ## Use it
 
-```jsonc
-// package.json
-"@tugane/design-rn": "file:../TuganeDesignRN"   // or a git URL
+```bash
+npm install @tugane/design-rn
 ```
+
+`react` and `react-native` are peer dependencies, so any React Native app
+already satisfies them. There is no build step and nothing to configure.
 
 Resolve a palette once at the root and let everything below read it:
 
