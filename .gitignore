@@ -1,0 +1,7 @@
+# Trailing slash alone would not match this: during local development
+# node_modules is a SYMLINK into the consuming app, and git sees a symlink as
+# a file, not a directory. Both forms are needed.
+node_modules/
+node_modules
+.DS_Store
+*.tsbuildinfo
