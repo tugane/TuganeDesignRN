@@ -22,22 +22,38 @@ export interface PageBackdropProps {
   symbol: string;
   /** Defaults to `palette.accent`. */
   tint?: string;
-  /** Glyph point size. The Swift original uses 460. */
+  /**
+   * Glyph point size. The Swift original uses 460, chosen against a window of
+   * at least 980pt — roughly 47% of the width. On a phone, passing 460
+   * literally makes the glyph wider than the screen and it reads as a wash
+   * rather than a corner watermark. Scale it to the viewport instead.
+   */
   size?: number;
-  /** Blur radius. The Swift original uses 48. */
+  /**
+   * Blur radius. Defaults proportionally to `size` so the softness matches the
+   * Swift original at any scale (48 when size is 460).
+   */
   blur?: number;
   opacity?: number;
 }
 
 const DRIFT_MS = 11_000;
 
+/** The Swift original's glyph size; every other magnitude is relative to it. */
+const REFERENCE_SIZE = 460;
+
 export function PageBackdrop({
   symbol,
   tint,
-  size = 460,
-  blur = 48,
+  size = REFERENCE_SIZE,
+  blur,
   opacity = 1,
 }: PageBackdropProps) {
+  // Everything below scales with the glyph, so a smaller `size` reproduces the
+  // original composition rather than a big glyph shoved off-screen. At the
+  // default size these resolve to exactly the Swift values.
+  const k = size / REFERENCE_SIZE;
+  const blurRadius = blur ?? 48 * k;
   const { palette, icon } = useTugane();
   const drift = useRef(new Animated.Value(0)).current;
 
@@ -69,10 +85,10 @@ export function PageBackdrop({
       <Animated.View
         style={{
           opacity,
-          filter: [{ blur }],
+          filter: [{ blur: blurRadius }],
           transform: [
-            { translateX: interp(80, 150) },
-            { translateY: interp(-80, 10) },
+            { translateX: interp(80 * k, 150 * k) },
+            { translateY: interp(-80 * k, 10 * k) },
             {
               rotate: drift.interpolate({
                 inputRange: [0, 1],
