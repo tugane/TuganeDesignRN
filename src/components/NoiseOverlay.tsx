@@ -11,15 +11,14 @@
 
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import { NOISE_PNG_BASE64 } from '../noise';
+import NOISE_SOURCE from '../noise.png';
 
 /**
- * Hoisted. Written inline as `source={{ uri: … }}` this allocated a fresh
- * object on every render, and React Native keys its image cache on the source —
- * a new object each time invites a re-decode of the tile per render, per
- * instance. One frozen object means one decode, shared by every overlay.
+ * A real asset, not a base64 data URI. Metro resolves it once and hands every
+ * overlay the same asset id, so the tile is decoded a single time — where the
+ * data URI was re-parsed per instance and carried 21.6 KB of string through the
+ * JS bundle, parsed at every app launch.
  */
-const NOISE_SOURCE = { uri: NOISE_PNG_BASE64 } as const;
 
 export interface NoiseOverlayProps {
   opacity?: number;
@@ -40,6 +39,11 @@ export function NoiseOverlay({ opacity = 0.2, blend = true }: NoiseOverlayProps)
   return (
     <View
       pointerEvents="none"
+      // The grain never changes, so let the platform hold this layer as a
+      // texture instead of re-rasterising a tiled fill every frame. These are
+      // View props, not Image props.
+      shouldRasterizeIOS
+      renderToHardwareTextureAndroid
       // soft-light shows on dark and light without crushing legibility.
       style={[
         StyleSheet.absoluteFill,
@@ -48,9 +52,10 @@ export function NoiseOverlay({ opacity = 0.2, blend = true }: NoiseOverlayProps)
       ]}
     >
       <Image
-        source={{ uri: NOISE_PNG_BASE64 }}
+        source={NOISE_SOURCE}
         resizeMode="repeat"
         style={StyleSheet.absoluteFill}
+        fadeDuration={0}
       />
     </View>
   );

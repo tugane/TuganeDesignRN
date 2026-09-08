@@ -26,7 +26,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && cp src/noise.png dist/noise.png",
     "typecheck": "tsc --noEmit",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build"
