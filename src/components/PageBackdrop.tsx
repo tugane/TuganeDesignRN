@@ -15,6 +15,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
+import Svg, { Defs, Filter, FeGaussianBlur, G, Text as SvgText } from 'react-native-svg';
 import { useTugane } from '../context';
 
 export interface PageBackdropProps {
@@ -35,6 +36,21 @@ export interface PageBackdropProps {
    */
   blur?: number;
   opacity?: number;
+  /**
+   * Render the glyph as SVG text behind a real Gaussian blur, instead of
+   * through the `icon` renderer with a CSS `filter`.
+   *
+   * Prefer this. React Native's `filter: [{ blur }]` does not render on iOS
+   * unless the `enableSwiftUIBasedFilters` feature flag is on — it defaults to
+   * false and Expo does not enable it — and it is a no-op on Android below API
+   * 31. So the CSS path produces a hard-edged glyph on every platform we ship
+   * to, which is not the effect at all: the Swift original is unrecognisable
+   * once blurred, and that softness *is* the design.
+   *
+   * `family` is the icon font's family name and `glyph` the character it maps
+   * to, e.g. Ionicons `wallet` is `\uf625`.
+   */
+  font?: { family: string; glyph: string };
 }
 
 const DRIFT_MS = 11_000;
@@ -48,12 +64,20 @@ export function PageBackdrop({
   size = REFERENCE_SIZE,
   blur,
   opacity = 1,
+  font,
 }: PageBackdropProps) {
   // Everything below scales with the glyph, so a smaller `size` reproduces the
   // original composition rather than a big glyph shoved off-screen. At the
   // default size these resolve to exactly the Swift values.
   const k = size / REFERENCE_SIZE;
   const blurRadius = blur ?? 48 * k;
+  /**
+   * SwiftUI's `.blur(radius:)` approximates a Gaussian whose standard
+   * deviation is about half the stated radius, while SVG's `stdDeviation` is
+   * sigma itself. Passing the radius straight through renders twice as diffuse
+   * as the Swift original, so halve it here.
+   */
+  const stdDeviation = blurRadius / 2;
   const { palette, icon } = useTugane();
   const drift = useRef(new Animated.Value(0)).current;
 
@@ -74,7 +98,7 @@ export function PageBackdrop({
   const interp = (from: number, to: number) =>
     drift.interpolate({ inputRange: [0, 1], outputRange: [from, to] });
 
-  if (!icon && __DEV__) {
+  if (!icon && !font && __DEV__) {
     console.warn(
       '[TuganeDesign] <PageBackdrop> needs an `icon` renderer on <TuganeDesignProvider>.',
     );
@@ -98,7 +122,31 @@ export function PageBackdrop({
           ],
         }}
       >
-        {icon?.({ name: symbol, size, color: tint ?? palette.accent })}
+        {font ? (
+          // The filter region has to be oversized or the blur is clipped to the
+          // glyph's bounding box and comes back with hard edges at the crop.
+          <Svg width={size * 2} height={size * 2}>
+            <Defs>
+              <Filter id="pageBackdropBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <FeGaussianBlur stdDeviation={stdDeviation} />
+              </Filter>
+            </Defs>
+            <G filter="url(#pageBackdropBlur)">
+              <SvgText
+                x={size}
+                y={size * 1.25}
+                textAnchor="middle"
+                fontFamily={font.family}
+                fontSize={size}
+                fill={tint ?? palette.accent}
+              >
+                {font.glyph}
+              </SvgText>
+            </G>
+          </Svg>
+        ) : (
+          icon?.({ name: symbol, size, color: tint ?? palette.accent })
+        )}
       </Animated.View>
     </View>
   );

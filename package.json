@@ -33,7 +33,8 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-native": ">=0.76"
+    "react-native": ">=0.76",
+    "react-native-svg": ">=15"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
@@ -44,5 +45,10 @@
     "react-native",
     "tugane"
   ],
-  "private": false
+  "private": false,
+  "peerDependenciesMeta": {
+    "react-native-svg": {
+      "optional": true
+    }
+  }
 }
