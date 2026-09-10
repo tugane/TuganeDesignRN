@@ -1,6 +1,6 @@
 {
   "name": "@tugane/design-rn",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "The shared design language behind tugane's apps, for React Native. Companion to the Swift TuganeDesign package.",
   "license": "GPL-3.0-or-later",
   "author": "Amiel Tugane Mutarataza",
