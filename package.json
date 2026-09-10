@@ -1,6 +1,6 @@
 {
   "name": "@tugane/design-rn",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The shared design language behind tugane's apps, for React Native. Companion to the Swift TuganeDesign package.",
   "license": "GPL-3.0-or-later",
   "author": "Amiel Tugane Mutarataza",
@@ -26,7 +26,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && cp src/noise.png dist/noise.png",
+    "build": "node init && tsc -p tsconfig.build.json && cp src/noise.png dist/noise.png",
     "typecheck": "tsc --noEmit",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build"
@@ -38,6 +38,8 @@
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
+    "dotenv": "^8.2.0",
+    "node-fetch": "^3.3.2",
     "typescript": "^5.9.0"
   },
   "keywords": [
