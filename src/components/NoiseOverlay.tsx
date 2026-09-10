@@ -39,11 +39,20 @@ export function NoiseOverlay({ opacity = 0.2, blend = true }: NoiseOverlayProps)
   return (
     <View
       pointerEvents="none"
-      // The grain never changes, so let the platform hold this layer as a
-      // texture instead of re-rasterising a tiled fill every frame. These are
-      // View props, not Image props.
-      shouldRasterizeIOS
-      renderToHardwareTextureAndroid
+      // No `shouldRasterizeIOS` here, deliberately. It looks like free
+      // performance for a layer that never changes, but it snapshots the layer
+      // at whatever size it had when the snapshot was taken — and an overlay
+      // that fills its parent is frequently measured before the parent has
+      // settled. The cached bitmap is then reused at the final, larger size,
+      // and the grain stops in a hard vertical line partway across: Namba's
+      // tab bar showed exactly this, grain over the first two icons and bare
+      // surface after. A tiled fill of a decoded image is cheap; a wrong one
+      // is not cheaper.
+      //
+      // renderToHardwareTextureAndroid goes with it: same promise, same
+      // staleness, and keeping one platform on a cached layer would mean the
+      // two platforms disagree about where the grain ends.
+      //
       // soft-light shows on dark and light without crushing legibility.
       style={[
         StyleSheet.absoluteFill,
